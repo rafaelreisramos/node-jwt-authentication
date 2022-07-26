@@ -1,0 +1,21 @@
+POST http://localhost:3000/users
+content-type: application/json
+
+{
+    "email": "john.doe@email.com",
+    "password": "123456",
+    "role": "ADMIN"
+}
+
+###
+GET http://localhost:3000/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ4M2JjOTlmLTRhNDMtNDJiNi04MGE0LWZmY2IyYWY4ZDY3OCIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTY1ODgzOTUwMX0.Xd_ELoQzTSk4DyxJwZ_ElkZf4p2DrR65OfAGIHJnUls
+
+###
+POST http://localhost:3000/auth
+content-type: application/json
+
+{
+    "email": "john.doe@email.com",
+    "password": "123456"
+}
