@@ -1,4 +1,8 @@
 export default {
-  secret: process.env.JWT_SECRET,
+  algorithm: 'RS256',
+  keys: {
+    private: process.env.JWT_PRIVATE_KEY,
+    public: process.env.JWT_PUBLIC_KEY,
+  },
   expiresIn: '15m',
 }
