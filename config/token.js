@@ -5,4 +5,7 @@ export default {
     public: process.env.JWT_PUBLIC_KEY,
   },
   expiresIn: '15m',
+  refresh: {
+    duration: 1000 * 60 * 60 * 24 * 7, // 7 days
+  },
 }

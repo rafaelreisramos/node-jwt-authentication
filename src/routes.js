@@ -13,5 +13,5 @@ router.post('/users', usersHandler.createUser)
 router.get('/users', authenticated, usersHandler.getAllUsers)
 
 router.post('/auth', authHandler.authenticate)
-
+router.post('/auth/refresh', authHandler.refreshToken)
 export default router

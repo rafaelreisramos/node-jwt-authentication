@@ -1,3 +1,4 @@
+import prisma from '../database/client.js'
 import cryptoService from './crypto.js'
 import usersService from './user.js'
 import tokenService from './token.js'
@@ -6,7 +7,7 @@ const authFailed = (email) =>
   Promise.reject({
     status: 401,
     code: 'UNAUTHENTICATED',
-    message: `Failed to authenticate user ${email}`,
+    message: `Failed to authenticate user ${email || ''}`.trim(),
   })
 
 const authenticate = async ({ email, password }) => {
@@ -21,7 +22,34 @@ const authenticate = async ({ email, password }) => {
   }
 
   const { id, role } = user
-  return tokenService.sign({ id, role })
+  const { token, expiresAt } = await tokenService.createRefreshToken(id)
+
+  return {
+    refreshToken: { token, expiresAt },
+    accessToken: tokenService.sign({ id, role }),
+  }
 }
 
-export default { authenticate }
+const isRefreshTokenValid = (refreshToken) =>
+  refreshToken && refreshToken.valid && refreshToken.expiresAt >= Date.now()
+
+const refreshToken = async (token) => {
+  const refreshTokenData = await tokenService.getRefreshToken(token)
+
+  if (!isRefreshTokenValid(refreshTokenData)) {
+    return authFailed()
+  }
+
+  await tokenService.invalidateRefreshToken(refreshTokenData)
+
+  const { id, role } = await prisma.user.findUnique({
+    where: { id: refreshTokenData.user_id },
+  })
+
+  return {
+    refreshToken: await tokenService.createRefreshToken(id),
+    accessToken: tokenService.sign({ id, role }),
+  }
+}
+
+export default { authenticate, refreshToken }
