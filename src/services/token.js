@@ -32,7 +32,12 @@ const createRefreshToken = async (userId) => {
 const getRefreshToken = async (token) =>
   await prisma.token.findUnique({
     where: { token },
-    select: { token: true, valid: true, user_id: true, expiresAt: true },
+    select: {
+      token: true,
+      valid: true,
+      user: { select: { id: true, role: true } },
+      expiresAt: true,
+    },
   })
 
 const invalidateRefreshToken = async ({ token }) => {

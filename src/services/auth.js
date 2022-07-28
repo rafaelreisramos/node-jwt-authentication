@@ -34,7 +34,9 @@ const isRefreshTokenValid = (refreshToken) =>
   refreshToken && refreshToken.valid && refreshToken.expiresAt >= Date.now()
 
 const refreshToken = async (token) => {
-  const refreshTokenData = await tokenService.getRefreshToken(token)
+  const { user, ...refreshTokenData } = await tokenService.getRefreshToken(
+    token
+  )
 
   if (!isRefreshTokenValid(refreshTokenData)) {
     return authFailed()
@@ -42,11 +44,7 @@ const refreshToken = async (token) => {
 
   await tokenService.invalidateRefreshToken(refreshTokenData)
 
-  const { id, role } = await prisma.user.findUnique({
-    where: { id: refreshTokenData.user_id },
-    select: { id: true, role: true },
-  })
-
+  const { id, role } = user
   return {
     refreshToken: await tokenService.createRefreshToken(id),
     accessToken: tokenService.sign({ id, role }),
@@ -61,4 +59,4 @@ const logout = ({ refreshToken, allDevices }) => {
   return tokenService.invalidateRefreshToken(refreshToken)
 }
 
-export default { authenticate, refreshToken, logout }
+export default { authenticate, refreshToken, logout, authFailed }
