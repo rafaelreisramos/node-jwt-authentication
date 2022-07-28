@@ -14,6 +14,7 @@ const authenticate = async (ctx) => {
   ctx.body = {
     accessToken,
   }
+  ctx.status = 201
 }
 
 const refreshToken = async (ctx) => {
@@ -23,6 +24,7 @@ const refreshToken = async (ctx) => {
   ctx.body = {
     accessToken,
   }
+  ctx.status = 201
 }
 
 const logout = async (ctx) => {
@@ -35,7 +37,7 @@ const logout = async (ctx) => {
     allDevices,
   })
   ctx.cookies.set('refreshToken', null)
-  ctx.body = {}
+  ctx.status = 204
 }
 
 export default { authenticate, refreshToken, logout }

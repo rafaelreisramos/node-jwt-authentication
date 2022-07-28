@@ -6,6 +6,7 @@ const getAllUsers = async (ctx) => {
 
 const createUser = async (ctx) => {
   ctx.body = await userService.createUser(ctx.request.body)
+  ctx.status = 201
 }
 
 export default { getAllUsers, createUser }
