@@ -25,4 +25,17 @@ const refreshToken = async (ctx) => {
   }
 }
 
-export default { authenticate, refreshToken }
+const logout = async (ctx) => {
+  const { allDevices } = ctx.request.body
+
+  await authService.logout({
+    refreshToken: {
+      token: ctx.cookies.get('refreshToken'),
+    },
+    allDevices,
+  })
+  ctx.cookies.set('refreshToken', null)
+  ctx.body = {}
+}
+
+export default { authenticate, refreshToken, logout }

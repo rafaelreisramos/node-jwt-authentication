@@ -52,4 +52,12 @@ const refreshToken = async (token) => {
   }
 }
 
-export default { authenticate, refreshToken }
+const logout = ({ refreshToken, allDevices }) => {
+  if (allDevices) {
+    return tokenService.invalidateAllUserRefreshTokens(refreshToken)
+  }
+
+  return tokenService.invalidateRefreshToken(refreshToken)
+}
+
+export default { authenticate, refreshToken, logout }

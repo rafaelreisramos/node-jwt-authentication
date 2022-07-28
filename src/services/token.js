@@ -32,11 +32,25 @@ const createRefreshToken = async (userId) => {
 const getRefreshToken = async (token) =>
   await prisma.token.findUnique({ where: { token } })
 
-const invalidateRefreshToken = async (refreshToken) =>
-  await prisma.token.update({
+const invalidateRefreshToken = async (refreshToken) => {
+  console.log(refreshToken)
+  return await prisma.token.update({
     where: { token: refreshToken.token },
     data: { valid: false },
   })
+}
+
+const invalidateAllUserRefreshTokens = (refreshToken) =>
+  prisma.token
+    .findUnique({
+      where: { token: refreshToken.token },
+    })
+    .then((token) =>
+      prisma.token.updateMany({
+        where: { user_id: token.user_id },
+        data: { valid: false },
+      })
+    )
 
 export default {
   sign,
@@ -44,4 +58,5 @@ export default {
   createRefreshToken,
   getRefreshToken,
   invalidateRefreshToken,
+  invalidateAllUserRefreshTokens,
 }
