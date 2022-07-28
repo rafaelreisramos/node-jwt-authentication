@@ -30,24 +30,27 @@ const createRefreshToken = async (userId) => {
 }
 
 const getRefreshToken = async (token) =>
-  await prisma.token.findUnique({ where: { token } })
+  await prisma.token.findUnique({
+    where: { token },
+    select: { token: true, valid: true, user_id: true, expiresAt: true },
+  })
 
-const invalidateRefreshToken = async (refreshToken) => {
-  console.log(refreshToken)
+const invalidateRefreshToken = async ({ token }) => {
   return await prisma.token.update({
-    where: { token: refreshToken.token },
+    where: { token },
     data: { valid: false },
   })
 }
 
-const invalidateAllUserRefreshTokens = (refreshToken) =>
+const invalidateAllUserRefreshTokens = ({ token }) =>
   prisma.token
     .findUnique({
-      where: { token: refreshToken.token },
+      where: { token },
+      select: { user_id: true },
     })
-    .then((token) =>
+    .then(({ user_id }) =>
       prisma.token.updateMany({
-        where: { user_id: token.user_id },
+        where: { user_id },
         data: { valid: false },
       })
     )

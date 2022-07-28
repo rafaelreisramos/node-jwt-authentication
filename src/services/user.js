@@ -14,14 +14,22 @@ const getUsers = async () =>
 
 const createUser = async (user) => {
   const hashedPassword = await cryptoService.hash(user.password)
-  const createdUser = await prisma.user.create({
+  return await prisma.user.create({
     data: { ...user, password: hashedPassword },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   })
-  delete createdUser.password
-  return createdUser
 }
 
 const findByEmail = async (email) =>
-  await prisma.user.findUnique({ where: { email } })
+  await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, role: true, password: true },
+  })
 
 export default { getUsers, createUser, findByEmail }

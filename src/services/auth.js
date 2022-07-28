@@ -44,6 +44,7 @@ const refreshToken = async (token) => {
 
   const { id, role } = await prisma.user.findUnique({
     where: { id: refreshTokenData.user_id },
+    select: { id: true, role: true },
   })
 
   return {
