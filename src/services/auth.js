@@ -42,7 +42,9 @@ const refreshToken = async (token) => {
     return authFailed()
   }
 
-  await tokenService.invalidateRefreshToken(refreshTokenData)
+  await tokenService.invalidateRefreshTokens({
+    refreshToken: refreshTokenData.token,
+  })
 
   const { id, role } = user
   return {
@@ -52,11 +54,7 @@ const refreshToken = async (token) => {
 }
 
 const logout = ({ refreshToken, allDevices }) => {
-  if (allDevices) {
-    return tokenService.invalidateAllUserRefreshTokens(refreshToken)
-  }
-
-  return tokenService.invalidateRefreshToken(refreshToken)
+  return tokenService.invalidateRefreshTokens({ refreshToken, allDevices })
 }
 
 export default { authenticate, refreshToken, logout, authFailed }

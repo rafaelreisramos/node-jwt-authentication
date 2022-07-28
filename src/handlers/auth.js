@@ -30,15 +30,13 @@ const refreshToken = async (ctx) => {
 const logout = async (ctx) => {
   const { allDevices } = ctx.request.body
 
-  const token = ctx.cookies.get('refreshToken')
-  if (!token) {
+  const refreshToken = ctx.cookies.get('refreshToken')
+  if (!refreshToken) {
     return authService.authFailed()
   }
 
-  await authService.logout({
-    refreshToken: { token },
-    allDevices,
-  })
+  await authService.logout({ refreshToken, allDevices })
+
   ctx.cookies.set('refreshToken', null)
   ctx.status = 204
 }

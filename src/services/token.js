@@ -40,31 +40,32 @@ const getRefreshToken = async (token) =>
     },
   })
 
-const invalidateRefreshToken = async ({ token }) => {
+const invalidateRefreshTokens = async ({
+  refreshToken: token,
+  allDevices = false,
+}) => {
+  if (allDevices) {
+    const { user_id } = await prisma.token.findUnique({
+      where: { token },
+      select: { user_id: true },
+    })
+
+    return prisma.token.updateMany({
+      where: { user_id },
+      data: { valid: false },
+    })
+  }
+
   return await prisma.token.update({
     where: { token },
     data: { valid: false },
   })
 }
 
-const invalidateAllUserRefreshTokens = ({ token }) =>
-  prisma.token
-    .findUnique({
-      where: { token },
-      select: { user_id: true },
-    })
-    .then(({ user_id }) =>
-      prisma.token.updateMany({
-        where: { user_id },
-        data: { valid: false },
-      })
-    )
-
 export default {
   sign,
   verify,
   createRefreshToken,
   getRefreshToken,
-  invalidateRefreshToken,
-  invalidateAllUserRefreshTokens,
+  invalidateRefreshTokens,
 }
