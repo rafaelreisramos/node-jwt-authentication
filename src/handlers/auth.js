@@ -1,10 +1,12 @@
 import authService from '../services/auth.js'
+import twoFactorService from '../services/2fa.js'
 
 const authenticate = async (ctx) => {
-  const { email, password } = ctx.request.body
+  const { email, password, token } = ctx.request.body
   const { refreshToken, accessToken } = await authService.authenticate({
     email,
     password,
+    token,
   })
 
   ctx.cookies.set('refreshToken', refreshToken.token, {
@@ -27,6 +29,20 @@ const refreshToken = async (ctx) => {
   ctx.status = 201
 }
 
+const generateQrCode = async (ctx) => {
+  const { userId } = ctx.state
+  const qrcode = await twoFactorService.generateQrCode(userId)
+  ctx.body = `<img src=${qrcode} />`
+}
+
+const activate2FA = async (ctx) => {
+  const { token } = ctx.request.body
+  const { userId } = ctx.state
+
+  await twoFactorService.activate2FA(userId, token)
+  ctx.status = 204
+}
+
 const logout = async (ctx) => {
   const { allDevices } = ctx.request.body
 
@@ -41,4 +57,10 @@ const logout = async (ctx) => {
   ctx.status = 204
 }
 
-export default { authenticate, refreshToken, logout }
+export default {
+  authenticate,
+  refreshToken,
+  generateQrCode,
+  activate2FA,
+  logout,
+}

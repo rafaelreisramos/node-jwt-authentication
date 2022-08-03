@@ -18,6 +18,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   Token     Token[]
+  twoFactor TwoFactor?
 }
 
 model Token {
@@ -29,4 +30,15 @@ model Token {
   expiresAt DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+}
+
+model TwoFactor {
+  id            String   @id @default(uuid())
+  user_id       String   @unique
+  user          User     @relation(fields: [user_id], references: [id])
+  enabled       Boolean  @default(false)
+  secret        String?
+  recoveryCode  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
 }

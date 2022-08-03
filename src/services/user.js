@@ -15,7 +15,7 @@ const getUsers = async () =>
 const createUser = async (user) => {
   const hashedPassword = await cryptoService.hash(user.password)
   return await prisma.user.create({
-    data: { ...user, password: hashedPassword },
+    data: { ...user, password: hashedPassword, twoFactor: { create: {} } },
     select: {
       id: true,
       email: true,
@@ -29,7 +29,12 @@ const createUser = async (user) => {
 const findByEmail = async (email) =>
   await prisma.user.findUnique({
     where: { email },
-    select: { id: true, role: true, password: true },
+    select: {
+      id: true,
+      role: true,
+      password: true,
+      twoFactor: { select: { enabled: true, secret: true } },
+    },
   })
 
 export default { getUsers, createUser, findByEmail }

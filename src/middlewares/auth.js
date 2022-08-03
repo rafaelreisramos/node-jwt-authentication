@@ -20,6 +20,9 @@ export default (ctx, next) => {
   return tokenService
     .verify(token)
     .catch(handleError)
-    .then(({ role }) => (ctx.state.role = role))
+    .then(({ role, id }) => {
+      ctx.state.role = role
+      ctx.state.userId = id
+    })
     .then(next)
 }

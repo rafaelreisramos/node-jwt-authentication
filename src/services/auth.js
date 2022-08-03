@@ -1,7 +1,7 @@
-import prisma from '../database/client.js'
 import cryptoService from './crypto.js'
 import usersService from './user.js'
 import tokenService from './token.js'
+import twoFactorService from './2fa.js'
 
 const authFailed = (email) =>
   Promise.reject({
@@ -10,18 +10,32 @@ const authFailed = (email) =>
     message: `Failed to authenticate user ${email || ''}`.trim(),
   })
 
-const authenticate = async ({ email, password }) => {
+const authenticate = async ({ email, password, token: token2fa }) => {
   const user = await usersService.findByEmail(email)
   if (!user) {
     return authFailed(email)
   }
 
-  const passwordMatch = await cryptoService.compare(password, user.password)
+  const { id, role, password: userPassword, twoFactor } = user
+  const passwordMatch = await cryptoService.compare(password, userPassword)
   if (!passwordMatch) {
     return authFailed(email)
   }
 
-  const { id, role } = user
+  if (twoFactor.enabled && !token2fa) {
+    return twoFactorService.twoFactorFailed()
+  }
+
+  if (twoFactor.enabled) {
+    const token2FAValid = twoFactorService.is2FATokenValid(
+      token2fa,
+      twoFactor.secret
+    )
+    if (!token2FAValid) {
+      return twoFactorService.twoFactorFailed()
+    }
+  }
+
   const { token, expiresAt } = await tokenService.createRefreshToken(id)
 
   return {
